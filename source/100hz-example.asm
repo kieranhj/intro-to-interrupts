@@ -8,7 +8,7 @@ IRQ2V = &206
 
 \\ Remember 6522 VIA timers run at 1MHz!
 \\ It takes 2us to latch the new timer value.
-Timer1_Value_in_us = 10000 -2           ; 10000us = 10ms = 100Hz
+Timer1_Value_in_us = 10000             ; 10000us = 10ms = 100Hz
 
 \ ******************************************************************
 \ *	Zero page vars 
@@ -45,13 +45,15 @@ GUARD &3000
     lda #&40                            ; A%=%01000000 (Timer 1 control)
     sta &FE6B                           ; set Auxilary control register on User VIA
 
-    \\ Set Timer 1 _counter_ value on User VIA to 10000us.
-    lda #LO(Timer1_Value_in_us) : sta &FE64
-    lda #HI(Timer1_Value_in_us) : sta &FE65
+    \\ Set Timer 1 _counter_ value on User VIA to 5000us.
+    lda #LO(5000) : sta &FE64
+    lda #HI(5000) : sta &FE65
 
     \\ Set Timer 1 _latch_ value on User VIA to 10000us.
-    lda #LO(Timer1_Value_in_us) : sta &FE66
-    lda #HI(Timer1_Value_in_us) : sta &FE67
+    \\ Note that the latch takes 2us to load into the counter.
+    \\ so we subtract 2 from the value to adjust.
+    lda #LO(Timer1_Value_in_us - 2) : sta &FE66
+    lda #HI(Timer1_Value_in_us - 2) : sta &FE67
 
     cli                                 ; enable CPU IRQs
     rts

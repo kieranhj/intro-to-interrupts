@@ -26,7 +26,7 @@ Scanline_to_interrupt_at = 128
 \\  - (2 * us_per_scanline)                             ; adjust for pulse delay
 \\  + (Scanline_to_interrupt_at) * us_per_scanline
 
-Timer2_Value_in_us = (Total_rows-Vsync_position)*us_per_row - 2*us_per_scanline + Scanline_to_interrupt_at*us_per_scanline - 2
+Timer2_Value_in_us = (Total_rows-Vsync_position)*us_per_row - 2*us_per_scanline + Scanline_to_interrupt_at*us_per_scanline
 
 \ ******************************************************************
 \ *	Zero page vars 
