@@ -159,9 +159,9 @@ A. All timers set the corresponding interrupt flag when reaching 0.
 ; Advanced graphics (CRTC) effects like Vertical Rupture
 
 'Set the Timer value in the Vsync interrupt handler.'
-Remembering that:
+'Now we need to be a bit more specific about _when_ the Vsync interrupt occurs.'
 
-   Vsync pulse position is usually at row 34/35.
+   Vsync position is usually at row 34/35.
    Vsync interrupt occurs 2 scanlines _after_ the pulse.
    There are 39 character rows per frame.
 
