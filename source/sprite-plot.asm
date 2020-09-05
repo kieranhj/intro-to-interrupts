@@ -2,6 +2,36 @@ SPRITE_WIDTH = 64
 SPRITE_STRIDE = SPRITE_WIDTH/4
 SPRITE_HEIGHT = 64
 
+.check_keys
+{
+    lda #debounce_d : ldx #INKEY_D AND 255
+    jsr debug_check_key : bne not_key_d
+    lda debug_rasters : eor #1 : sta debug_rasters
+    .not_key_d
+
+    lda #debounce_f : ldx #INKEY_F AND 255
+    jsr debug_check_key : bne not_key_f
+    lda fixed_timer : eor #1 : sta fixed_timer
+    .not_key_f
+    rts
+}
+
+.debug_check_key
+{
+    sta ldx_addr+1
+    lda #$81
+    ldy #$ff
+    jsr osbyte
+    cpx #$ff						; C=1 if pressed
+    .ldx_addr:ldx #$ff
+    lda 0,x
+    ror a
+    sta 0,x
+    and #%11000000
+    cmp #%10000000
+    rts
+}
+
 .calc_writeptr
 {
     tya
@@ -91,6 +121,27 @@ SPRITE_HEIGHT = 64
     dex
     bne line_loop
     .done
+    rts
+}
+
+.move_sprite
+{
+    ldy plot_v
+    iny
+    sty plot_v
+
+    clc
+    lda plot_y
+    adc plot_v
+    cmp #255-64
+    bcc ok
+
+    lda #LO(-20)
+    sta plot_v
+
+    lda #255-64
+    .ok
+    sta plot_y
     rts
 }
 
