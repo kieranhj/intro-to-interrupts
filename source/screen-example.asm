@@ -87,8 +87,8 @@ GUARD &3000
     sta &fe21                           ; ULA Palette register
 
     \\ Set one-shot Timer 2 in User VIA using value from ZP.
-    lda timer_value   : sta &FE68
-    lda timer_value+1 : sta &FE69
+    lda timer_value   : sta &FE68       ; User VIA Reg 8 'Timer 2 low-order latch'
+    lda timer_value+1 : sta &FE69       ; User VIA Reg 9 'Timer 2 high-order counter'
     jmp return_to_os
 
     .try_timer2
@@ -96,7 +96,7 @@ GUARD &3000
     and #&20                            ; check for Timer 2 interrupt
     beq return_to_os                    ; if not then pass on to MOS IRQ handler
 
-    \\ Clear Timer 2 interrupt flag by reading the Timer 2 low-order register
+    \\ Clear Timer 2 interrupt flag by reading the Timer 2 low-order register.
     lda &FE68
 
     \\ Set the background to blue.

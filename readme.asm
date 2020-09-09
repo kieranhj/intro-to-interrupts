@@ -16,6 +16,13 @@
 
 
 
+
+
+
+
+
+
+
 .System_and_User_VIAs
 ; See New Advanced User Guide, pp. 380 for details.
 ; 16 registers mapped into Sheila address space.
@@ -44,17 +51,19 @@
 
 
 
+
+
 .System_VIA 'Interrupt enable register' &FE4E ; Reg 14
 
 Bit 7 6 5 4 3 2 1 0
     | | | | | | | |
-    | | | | | | | +------  CA2      <-- keyboard
-    | | | | | | +--------  CA1      <-- vsync pulse from 6845 CRTC
+    | | | | | | | +------  CA2           <-- keyboard
+    | | | | | | +--------  CA1           <-- vsync pulse from 6845 CRTC
     | | | | | +----------  Shift reg
-    | | | | +------------  CB2      <-- light pen strobe from 6845 CRTC
-    | | | +--------------  CB1      <-- ADC
-    | | +----------------  Timer 2  <-- one-shot or pulse
-    | +------------------  Timer 1  <-- one-shot or continuous
+    | | | | +------------  CB2           <-- light pen strobe from 6845 CRTC
+    | | | +--------------  CB1           <-- ADC
+    | | +----------------  Timer 2       <-- one-shot or pulse
+    | +------------------  Timer 1       <-- one-shot or continuous
     +--------------------  Set (1) / clear (0)
 
 .eg 'disable all interrupts on System VIA':
@@ -68,26 +77,30 @@ Bit 7 6 5 4 3 2 1 0
 
 
 
+
+
 .System_VIA 'Interrupt flag register' &FE4D ; Reg 13
 
-Bit 7 6 5 4 3 2 1 0        Set by                Cleared by
+Bit 7 6 5 4 3 2 1 0        Set by                  Cleared by
     | | | | | | | |
-    | | | | | | | +------  Key press             Read or write Reg 1
-    | | | | | | +--------  Vsync pulse           Read or write Reg 1
-    | | | | | +----------  8 bits shifted        Read or write Shift register
-    | | | | +------------  EOC from ADC          Read or write Reg 0
-    | | | +--------------  Light pen strobe      Read or write Reg 0
-    | | +----------------  Time-out of Timer 2   Read Timer 2 low or write Timer 2 high
-    | +------------------  Time-out of Timer 1   Read TImer 1 low or read Timer 1 high
-    +--------------------  Any active interrupt  Clear all interrupts
+    | | | | | | | +------  Key press               Read or write Reg 1
+    | | | | | | +--------  Vsync pulse             Read or write Reg 1
+    | | | | | +----------  8 bits shifted          Read or write Shift register
+    | | | | +------------  EOC from ADC            Read or write Reg 0
+    | | | +--------------  Light pen strobe        Read or write Reg 0
+    | | +----------------  Time-out of Timer 2     Read Timer 2 low or write Timer 2 high
+    | +------------------  Time-out of Timer 1     Read TImer 1 low or read Timer 1 high
+    +--------------------  Any active interrupt    Clear all interrupts
 
 .eg 'check if Vsync occured on System VIA':
 
     lda &FE4D : and #&02      ; A=%00000010 if flag is set for vsync
 
-.eg 'clear Vsync interrupt flag on System VIA':
+.eg 'clear Timer 1 interrupt flag on System VIA':
 
-    lda #&02 : sta &FE4D      ; A=%00000010
+    lda &FE44                 ; A=Timer 1 low-order counter
+
+
 
 
 
@@ -104,6 +117,10 @@ Q. 'When does Vsync happen?'
 A. By default at 50Hz (every 20ms) after the visible portion of the screen has been displayed.
 
 \ Look at vsync-example.asm
+
+
+
+
 
 
 
@@ -129,6 +146,9 @@ A. Only when the _high-order_ counter is written to.
                                 ;       low-order counter loaded from low-order latch
                                 ;       Timer 1 starts counting down from 10000
 
+
+
+
 Q. What are 'continuous' (or 'free-run') and 'one-shot' timer ?
 A. All timers set the corresponding interrupt flag when reaching 0.
    'One-shot' timers stop counting after reaching 0.
@@ -150,6 +170,8 @@ A. All timers set the corresponding interrupt flag when reaching 0.
                                 ;       has no effect on the currently running timer!
 
 \ Look at 100hz-example.asm
+
+
 
 
 
@@ -181,6 +203,35 @@ A. All timers set the corresponding interrupt flag when reaching 0.
 
 
 
-.Using_System_VIA_without_an_IRQ_handler
+
+
+.Setting_a_dynamic_Timer
 ; Time sprite plot routines relative to the raster, to avoid flicker
+
+Q. What causes sprites to flicker?
+A. When bytes of screen memory are modified at the same time as when those bytes are being sent to the display.
+
+   The CRTC video chip generates screen addresses at either 1MHz or 2MHz, so 40 or 80 bytes per scanline*.
+   The Video ULA fetches whatever is in RAM for each address and sends pixels to the display*.
+   If our sprite routine (erase / EOR / plot) does not complete before that screen address is sent (the raster),
+   then flickering or tearing can occur.
+
+Q. How to make sure a plot routine completes before the raster?
+A. 'Set a Timer so we call the routine _after_ the raster has passed the vertical position of the sprite on screen.'
+   NB. this is just one approach, many others are possible!
+
+.eg If a sprite is erased and plotted at scanline 100, and is 16 pixels high, then we aim to call the routine
+    _no earlier_ than scanline 100+16=116. As long as it completes before the raster reaches scanline 100 again,
+    there will be no flicker.
+
+\ Look at sprite-example.asm
+
+
+
+
+
+
+
+.Using_System_VIA_without_an_IRQ_handler
 ; Stable raster…
+'Left as an exercise for the reader!'

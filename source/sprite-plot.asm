@@ -2,6 +2,16 @@ SPRITE_WIDTH = 64
 SPRITE_STRIDE = SPRITE_WIDTH/4
 SPRITE_HEIGHT = 64
 
+.init
+{
+    lda #0 : sta plot_y
+    sta plot_v: sta plot_flag
+
+    lda #1 : sta debug_rasters
+    sta fixed_timer
+    rts
+}
+
 .check_keys
 {
     lda #debounce_d : ldx #INKEY_D AND 255
@@ -132,6 +142,7 @@ SPRITE_HEIGHT = 64
 
     clc
     lda plot_y
+    sta old_y
     adc plot_v
     cmp #255-64
     bcc ok

@@ -1,6 +1,6 @@
 \ ******************************************************************
-\ *	Screen interrupt example.
-\ * Using the User VIA so this can run alongside the MOS.
+\ *	Sprite plotting example.
+\ * Dynamically sets Timer 2 in the System VIA during the Vsync interrupt handler.
 \ ******************************************************************
 
 IRQ1V = &204
@@ -58,6 +58,7 @@ GUARD &9F
 .readptr        skip 2
 .writeptr       skip 2
 
+.old_y          skip 1
 .plot_y         skip 1
 .plot_v         skip 1
 
@@ -80,18 +81,20 @@ GUARD &3000
 
 .main
 {
+    \\ Set MODE 1.
     lda #22 : jsr oswrch
     lda #1 : jsr oswrch
-	\\ Turn off interlace & cursor
-	lda #8 : sta &fe00
-	lda #&c0 : sta &fe01
+
+	\\ Turn off interlace & cursor.
+	lda #8 : sta &FE00                  ; CRTC Register 8 'Interlace & delay'
+	lda #&C0 : sta &FE01                ; A=%1100000
 
     sei                                 ; disable CPU IRQs
-    lda #&A2                            ; A=%100000010 (enable vsync interrupt)
+    lda #&A2                            ; A=%10100010 (enable vsync and Timer 2 interrupt)
     sta &FE4E                           ; set Interrupt enable register on System VIA
 
-    lda #&00
-    sta &FE4B
+    lda #&00                            ; A%=00000000 (Timer 2 control = one-shot)
+    sta &FE4B                           ; set Auxiliary control register on System VIA
 
     lda IRQ1V   : sta old_irq
     lda IRQ1V+1 : sta old_irq+1         ; save contents of IRQ1V
@@ -101,15 +104,14 @@ GUARD &3000
     cli
 
     \\ Init vars.
-    lda #0 : sta plot_y
-    sta plot_v: sta plot_flag
-
-    lda #1 : sta debug_rasters
-    sta fixed_timer
+    jsr init
 
     .main_loop
     \\ Check for keys.
     jsr check_keys
+
+    \\ Move sprite.
+    jsr move_sprite
 
     \\ Wait for flag to plot.
     {
@@ -119,16 +121,21 @@ GUARD &3000
         dec plot_flag
     }
 
-    \\ Erase old sprite.
+    \\ Set background colour to green.
     SETBG_COL PAL_Green
-    ldy plot_y : jsr delete_sprite_at_Y
 
-    \\ Move sprite and plot in new position.
+    \\ Erase old sprite.
+    ldy old_y : jsr delete_sprite_at_Y
+
+    \\ Set background colour to blue.
     SETBG_COL PAL_Blue
-    jsr move_sprite
+
+    \\ Plot sprite in new position.
     ldy plot_y : jsr plot_sprite_at_Y
 
+    \\ Set background colour to black.
     SETBG_COL PAL_Black
+
     jmp main_loop
 }
 
@@ -144,25 +151,41 @@ GUARD &3000
     and #&02                            ; check for vsync interrupt
     beq try_timer2
 
+    \\ Handle Vsync interrupt.
+
+    \\ If using a fixed timer just set the plot flag.
     lda fixed_timer
     bne set_plot_flag
 
-    \\ Set one-shot Timer 2.  
-    lda #0 : sta timer_hi
+    \\ Calculate dynamic timer based on vertical position of sprite 'plot_y'.
+
+    \\ Timer value
+    \\  = (Total_rows - Vsync_position) * us_per_row        <-- fixed
+    \\  - (2 * us_per_scanline)                             <-- fixed
+    \\  + (Scanline_to_interrupt_at) * us_per_scanline      <-- calculate from (plot_y + SPRITE_HEIGHT)
+
+    \\ Timer value = Timer2_Base_in_us + (plot_y + SPRITE_HEIGHT) * 64
+
+    lda #0 : sta timer_hi                       ; set timer high byte to 0.
+    
+    \\ Add sprite height to plot_y.
     clc
     lda plot_y
-    adc #64
-    rol timer_hi
+    adc #SPRITE_HEIGHT
+    rol timer_hi                                ; carry to high byte.
 
-    rol a : rol timer_hi
-    rol a : rol timer_hi
-    rol a : rol timer_hi
-    rol a : rol timer_hi
-    rol a : rol timer_hi
-    rol a : rol timer_hi
-    adc #LO(Timer2_Base_in_us) : sta &FE48
+    \\ Multiply (plot_y + SPRITE_HEIGHT) by 64.
+    rol a : rol timer_hi                        ; x2
+    rol a : rol timer_hi                        ; x4
+    rol a : rol timer_hi                        ; x8
+    rol a : rol timer_hi                        ; x16
+    rol a : rol timer_hi                        ; x32
+    rol a : rol timer_hi                        ; x64
+
+    \\ Add Timer2_Base_in_us
+    adc #LO(Timer2_Base_in_us) : sta &FE48      ; System VIA Reg 8 'Timer 2 low-order latch'
     lda timer_hi
-    adc #HI(Timer2_Base_in_us) : sta &FE49
+    adc #HI(Timer2_Base_in_us) : sta &FE49      ; System VIA Reg 9 'Timer 2 high-order counter'
     jmp return_to_os
 
     .try_timer2
@@ -170,8 +193,10 @@ GUARD &3000
     and #&20
     beq return_to_os
 
+    \\ Clear Timer 2 interrupt flag by reading the Timer 2 low-order register.
     lda &FE48
 
+    \\ Set the flag to call sprite routine.
     .set_plot_flag
     inc plot_flag
 

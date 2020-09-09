@@ -50,8 +50,7 @@ GUARD &3000
     lda #HI(5000) : sta &FE65
 
     \\ Set Timer 1 _latch_ value on User VIA to 10000us.
-    \\ Note that the latch takes 2us to load into the counter.
-    \\ so we subtract 2 from the value to adjust.
+    \\ Note that the latch takes 2us to load into the counter so we subtract 2 from the value to adjust.
     lda #LO(Timer1_Value_in_us - 2) : sta &FE66
     lda #HI(Timer1_Value_in_us - 2) : sta &FE67
 
@@ -71,7 +70,7 @@ GUARD &3000
     and #&80                            ; check for Timer 1 interrupt
     beq return_to_os                    ; if not then pass on to MOS IRQ handler
 
-    \\ Clear Timer 1 interrupt flag by reading the Timer 1 low-order register
+    \\ Clear Timer 1 interrupt flag by reading the Timer 1 low-order register.
     lda &FE64
 
     \\ Increment our counter.
