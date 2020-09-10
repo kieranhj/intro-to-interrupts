@@ -183,11 +183,11 @@ A. All timers set the corresponding interrupt flag when reaching 0.
 'Set the Timer value in the Vsync interrupt handler.'
 'Now we need to be a bit more specific about _when_ the Vsync interrupt occurs.'
 
-   Vsync position is usually at row 34/35.
+   There are 39 character rows per frame (usually only 32 are visible).
+   Vsync position is usually at row 34/35 (depends on *TV settings).
    Vsync interrupt occurs 2 scanlines _after_ the pulse.
-   There are 39 character rows per frame.
 
-   One scanline is 64us and there are 8 scanlines oer character row.
+   One scanline is 64us and there are 8 scanlines oer character row*.
 
    So Timer value = a delay until the end of the frame
                   - adjustment for Vsync pulse delay

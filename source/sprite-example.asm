@@ -20,8 +20,6 @@ Total_rows = 39
 us_per_scanline = 64            ; one scanline is 64us
 us_per_row = 8*64               ; one character row is 8 scanlines
 
-Scanline_to_interrupt_at = 128
-
 \\ We set our Timer inside the Vsync interrupt
 \\ We must wait until the end of the video frame, which is a total of 39 character rows.
 \\ The interrupt is actually triggered 2 scanlines later so need to adjust for this.
@@ -32,7 +30,6 @@ Scanline_to_interrupt_at = 128
 \\  + (Scanline_to_interrupt_at) * us_per_scanline
 
 Timer2_Base_in_us = (Total_rows-Vsync_position)*us_per_row - 2*us_per_scanline
-Timer2_Value_in_us = Timer2_Base_in_us + Scanline_to_interrupt_at*us_per_scanline
 
 MACRO SETBG_COL col
 {
@@ -182,16 +179,21 @@ GUARD &3000
     rol a : rol timer_hi                        ; x32
     rol a : rol timer_hi                        ; x64
 
-    \\ Add Timer2_Base_in_us
-    adc #LO(Timer2_Base_in_us) : sta &FE48      ; System VIA Reg 8 'Timer 2 low-order latch'
-    lda timer_hi
-    adc #HI(Timer2_Base_in_us) : sta &FE49      ; System VIA Reg 9 'Timer 2 high-order counter'
+    \\ A = timer low byte
+    adc #LO(Timer2_Base_in_us)                  ; add Timer2_Base_in_us low byte
+    sta &FE48                                   ; System VIA Reg 8 'Timer 2 low-order latch'
+    lda timer_hi                                ; A = timer high byte
+    adc #HI(Timer2_Base_in_us)                  ; add Timer2_Base_in_us high byte
+    sta &FE49                                   ; System VIA Reg 9 'Timer 2 high-order counter'
+
     jmp return_to_os
 
     .try_timer2
     lda &FE4D
     and #&20
     beq return_to_os
+
+    \\ Handle Timer interrupt.
 
     \\ Clear Timer 2 interrupt flag by reading the Timer 2 low-order register.
     lda &FE48

@@ -82,9 +82,11 @@ GUARD &3000
     and #&02                            ; check for vsync interrupt
     beq try_timer2
 
+    \\ Handle Vsync interrupt.
+
     \\ Set background colour to black.
     lda #PAL_Black
-    sta &fe21                           ; ULA Palette register
+    sta &FE21                           ; ULA Palette register
 
     \\ Set one-shot Timer 2 in User VIA using value from ZP.
     lda timer_value   : sta &FE68       ; User VIA Reg 8 'Timer 2 low-order latch'
@@ -96,12 +98,14 @@ GUARD &3000
     and #&20                            ; check for Timer 2 interrupt
     beq return_to_os                    ; if not then pass on to MOS IRQ handler
 
+    \\ Handle Timer interrupt.
+
     \\ Clear Timer 2 interrupt flag by reading the Timer 2 low-order register.
     lda &FE68
 
     \\ Set the background to blue.
     lda #PAL_Blue
-    sta &fe21                           ; ULA Palette register
+    sta &FE21                           ; ULA Palette register
 
     .return_to_os
     pla : sta &FC                       ; restore A register

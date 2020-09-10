@@ -20,7 +20,7 @@ GUARD &9F
 \ *	Code 
 \ ******************************************************************
 
-ORG &1900
+ORG &2000
 GUARD &3000
 
 .start
@@ -66,6 +66,8 @@ GUARD &3000
     lda &FE6D                           ; read Interrupt flag register on User VIA
     and #&80                            ; check for Timer 1 interrupt
     beq return_to_os                    ; if not then pass on to MOS IRQ handler
+
+    \\ Handle Timer interrupt.
 
     \\ Clear Timer 1 interrupt flag by reading the Timer 1 low-order register.
     lda &FE64

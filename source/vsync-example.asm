@@ -20,7 +20,7 @@ GUARD &9F
 \ *	Code 
 \ ******************************************************************
 
-ORG &1900
+ORG &2000
 GUARD &3000
 
 .start
@@ -52,6 +52,8 @@ GUARD &3000
     lda &FE4D                           ; read Interrupt flag register on System VIA
     and #&02                            ; check for vsync interrupt
     beq return_to_os                    ; if not then pass on to MOS IRQ handler
+
+    \\ Handle Vsync interrupt.
 
     \\ Q. What happens if we clear the vsync interrupt flag?
     \\ sta &FE4D                           ; A=%00000010 (clear vsync interrupt flag)
