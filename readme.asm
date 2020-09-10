@@ -1,6 +1,6 @@
 \ Intro to Interrupts on the BBC Micro (part #2)
 \ Kieran Connell, vABUG Masterclass #2, 10/09/2020.
-
+\ https://github.com/kieranhj/intro-to-interrupts
 
 
 
@@ -86,8 +86,8 @@ Bit 7 6 5 4 3 2 1 0        Set by                  Cleared by
     | | | | | | | +------  Key press               Read or write Reg 1
     | | | | | | +--------  Vsync pulse             Read or write Reg 1
     | | | | | +----------  8 bits shifted          Read or write Shift register
-    | | | | +------------  EOC from ADC            Read or write Reg 0
-    | | | +--------------  Light pen strobe        Read or write Reg 0
+    | | | | +------------  Light pen strobe        Read or write Reg 0
+    | | | +--------------  EOC from ADC            Read or write Reg 0
     | | +----------------  Time-out of Timer 2     Read Timer 2 low or write Timer 2 high
     | +------------------  Time-out of Timer 1     Read TImer 1 low or read Timer 1 high
     +--------------------  Any active interrupt    Clear all interrupts
@@ -135,7 +135,7 @@ A. Count down at 1MHz = 1,000,000 ticks a second.
    When the timer counter reaches 0 the corresponding interrupt flag is set.
 
 Q. 'When does the timer start counting down?'
-A. Only when the _high-order_ counter is written to.
+A. Only when the _high-order_ counter register is written.
    At the same time the low-order counter is automatically loaded from the low-order latch.
 
 .eg 'set Timer 1 on System VIA to count 10,000 ticks':
