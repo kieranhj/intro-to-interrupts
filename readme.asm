@@ -89,7 +89,7 @@ Bit 7 6 5 4 3 2 1 0        Set by                  Cleared by
     | | | | +------------  Light pen strobe        Read or write Reg 0
     | | | +--------------  EOC from ADC            Read or write Reg 0
     | | +----------------  Time-out of Timer 2     Read Timer 2 low or write Timer 2 high
-    | +------------------  Time-out of Timer 1     Read TImer 1 low or read Timer 1 high
+    | +------------------  Time-out of Timer 1     Read Timer 1 low or read Timer 1 high
     +--------------------  Any active interrupt    Clear all interrupts
 
 .eg 'check if Vsync occured on System VIA':
@@ -187,7 +187,7 @@ A. All timers set the corresponding interrupt flag when reaching 0.
    Vsync position is usually at row 34/35 (depends on *TV settings).
    Vsync interrupt occurs 2 scanlines _after_ the pulse.
 
-   One scanline is 64us and there are 8 scanlines oer character row*.
+   One scanline is 64us and there are 8 scanlines per character row*.
 
    So Timer value = a delay until the end of the frame
                   - adjustment for Vsync pulse delay
