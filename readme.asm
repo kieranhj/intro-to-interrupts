@@ -154,7 +154,7 @@ A. All timers set the corresponding interrupt flag when reaching 0.
    'One-shot' timers stop counting after reaching 0.
    'Continuous' (or 'free-run') timers are reloaded with a new value from the _latch_ registers.
    
-   It takes 2ms for the latch value to be loaded into the counter registers!
+   It takes 2us for the latch value to be loaded into the counter registers!
    Only Timer 1 can run in 'continuous' mode.
    Timer mode is set using the Auxiliary control register (Reg 11).
    See New Advanced User Guide pp 395.
