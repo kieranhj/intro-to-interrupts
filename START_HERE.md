@@ -13,12 +13,12 @@ Teaching material: "Intro to Interrupts on the BBC Micro (part #2)", Kieran Conn
 - `readme.asm` - the tutorial itself (long commented text, also goes on the disc); `README.md` is just a title.
 - `source/` - `vsync-example.asm`, `100hz-example.asm`, `screen-example.asm` (+ `screen.bas`), `sprite-example.asm` + `sprite-plot.asm`, `make-disc.asm`.
 - `data/` - `sprite.png` / `sprite.bin`.
-- `bin/` - an old `beebasm.exe`, `jsbeeb.bat`, `runme.url`.
+- `bin/` - `beebasm.exe` (current 64-bit build since 2026-11-22), `jsbeeb.bat`, `runme.url`.
 - `build/` (gitignored) - listings and `intro-to-interrupts.ssd`.
 
 ## Build and run
-- `make`: the same steps as `make.bat` (assemble the four examples, then `build\intro-to-interrupts.ssd`) but with the shared beebasm `..\..\Bin\beebasm.exe`. Tested 2026-11-22, works. `make help` lists targets.
-- `make.bat` itself no longer works: the bundled `bin\beebasm.exe` fails to start (missing DLL, exit 0xC0000135).
+- `make`: the same steps as `make.bat` (assemble the four examples, then `build\intro-to-interrupts.ssd`). Tested 2026-11-22, works. `make help` lists targets.
+- `make.bat` works too. Its old 32-bit `bin\beebasm.exe` needed a missing VC++ 2010 DLL, so it was replaced with the current build on 2026-11-22.
 - Run: `run.bat` copies the disc into `..\jsbeeb-kieranhj\discs` and opens `bin\runme.url` (a local jsbeeb on localhost:8000, started by `bin\jsbeeb.bat`, which still points at `OneDrive\BEEB\Repos\jsbeeb-kieranhj` and uses Python 2). Easier: open the .ssd at https://bbc.xania.org.
 
 ## Local changes

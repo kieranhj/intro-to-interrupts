@@ -1,8 +1,7 @@
 # So that `make` works from PowerShell / Windows Terminal.
 # GNU make runs recipes with cmd.exe here (no sh on PATH).
-# Same steps as make.bat, but with the shared beebasm: the bundled bin\beebasm.exe
-# no longer starts on this machine (missing DLL). Override with BEEBASM=bin\beebasm.exe.
-BEEBASM ?= ..\..\Bin\beebasm.exe
+# Same steps as make.bat. Override the assembler with BEEBASM=...
+BEEBASM ?= bin\beebasm.exe
 
 .PHONY: all build help
 
