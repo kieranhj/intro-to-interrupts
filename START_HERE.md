@@ -19,7 +19,7 @@ Teaching material: "Intro to Interrupts on the BBC Micro (part #2)", Kieran Conn
 ## Build and run
 - `make`: the same steps as `make.bat` (assemble the four examples, then `build\intro-to-interrupts.ssd`). Tested 2026-11-22, works. `make help` lists targets.
 - `make.bat` works too. Its old 32-bit `bin\beebasm.exe` needed a missing VC++ 2010 DLL, so it was replaced with the current build on 2026-11-22.
-- Run: `run.bat` copies the disc into `..\jsbeeb-kieranhj\discs` and opens `bin\runme.url` (a local jsbeeb on localhost:8000, started by `bin\jsbeeb.bat`, which still points at `OneDrive\BEEB\Repos\jsbeeb-kieranhj` and uses Python 2). Easier: open the .ssd at https://bbc.xania.org.
+- Run: jsbeeb-kieranhj, the local jsbeeb clone it used, was deleted on 2026-11-27 (the fork is on GitHub), and `run.bat` with it; open the disc at https://bbc.xania.org or in b2. (`bin\jsbeeb.bat` and `bin\runme.url` are leftovers of that setup.)
 
 ## Local changes
 - None: working tree clean, no stashes, no snapshot branches.
@@ -28,4 +28,4 @@ Teaching material: "Intro to Interrupts on the BBC Micro (part #2)", Kieran Conn
 - Finished talk material (2020). Nothing outstanding found.
 
 ## See also
-- `readme.asm` (the tutorial text). D:\beeb\mine\jsbeeb-kieranhj (the local jsbeeb run.bat expects).
+- `readme.asm` (the tutorial text).
